@@ -34,9 +34,9 @@ def get_recommendations(user_id: str, emotion: str) -> List[Dict[str, Any]]:
         )
         api_response = request.execute()
 
-        items = api_response.get("items", []) if isinstance(
-            api_response, dict
-        ) else []
+        items = []
+        if isinstance(api_response, dict):
+            items = api_response.get("items", [])
 
         songs: List[Dict[str, Any]] = []
         for raw_item in items:
@@ -69,7 +69,7 @@ def get_recommendations(user_id: str, emotion: str) -> List[Dict[str, Any]]:
                 "thumbnail": medium.get("url", "")
             })
 
-        return songs[:6]  # type: ignore
+        return songs[:6]
 
     except Exception as e:
         print(f"YouTube API Error: {e}")

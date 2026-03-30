@@ -10,7 +10,9 @@ from flask_session import Session  # type: ignore
 
 # Import models
 from models.emotion import detect_emotion  # type: ignore
-from models.recommender import get_recommendations, track_interaction  # type: ignore
+from models.recommender import (  # type: ignore
+    get_recommendations, track_interaction
+)
 from models.db import supabase  # type: ignore
 
 app = Flask(__name__)
@@ -134,9 +136,9 @@ def track() -> Response:
 
     track_interaction(
         session['user_id'],
-        data.get('song_id', ''),
-        data.get('song_title', 'Unknown'),
-        data.get('action', 'play')
+        str(data.get('song_id', '')),
+        str(data.get('song_title', 'Unknown')),
+        str(data.get('action', 'play'))
     )
     return jsonify({'status': 'success'})
 

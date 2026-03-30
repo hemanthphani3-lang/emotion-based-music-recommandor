@@ -1,66 +1,86 @@
 {% extends "layout.html" %}
-
 {% block title %}Mood Detector{% endblock %}
 
 {% block content %}
-<div class="detector-header" style="margin-bottom: 2rem;">
-    <h1>How are you feeling, {{ session.username }}?</h1>
-    <p style="color: var(--text-dim);">Let AI detect your mood and find the perfect soundtrack.</p>
+<div class="page-header">
+    <h1>Hey, {{ session.username }} 👋</h1>
+    <p>Let AI read your mood and curate the perfect soundtrack.</p>
 </div>
 
 <div class="detector-grid">
     <!-- Camera Section -->
-    <div class="video-container glass-card">
-        <video id="webcam" autoplay playsinline></video>
+    <div class="video-container glass-card" id="camera-card">
+        <video id="webcam" autoplay playsinline aria-label="Webcam feed"></video>
         <canvas id="photo" style="display:none;"></canvas>
-        
+
+        <!-- Scanning corners -->
+        <div class="corner-tl"></div>
+        <div class="corner-tr"></div>
+        <div class="corner-bl"></div>
+        <div class="corner-br"></div>
+
+        <!-- Scan line animation -->
+        <div class="scan-line"></div>
+
+        <!-- Detection loading overlay -->
+        <div class="detect-overlay" id="detect-overlay" aria-live="polite">
+            <div class="spinner"></div>
+            <p>Analyzing your emotion…</p>
+        </div>
+
         <div class="overlay">
             <div id="status">
-                <span style="display:flex; align-items:center; gap:8px;">
-                    <ion-icon name="radio-outline" style="color:red;"></ion-icon> Live Feed
+                <span style="display:flex; align-items:center; gap:7px;">
+                    <ion-icon name="radio-outline" style="color:#ef4444;"></ion-icon> Live Feed
                 </span>
             </div>
-            <button id="capture-btn" class="btn-primary" style="width:auto; margin:0; padding:10px 25px;">
-                Detect Emotion
+            <button id="capture-btn" class="btn-primary">
+                <span id="capture-label">Detect Emotion</span>
             </button>
         </div>
     </div>
 
     <!-- Recommendations Section -->
-    <div id="recommendations-panel" class="glass-card" style="display:flex; flex-direction:column;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-            <h2 id="mood-label">Detected Mood: <span style="color:var(--accent);">Pending...</span></h2>
-            <div class="fallback-select">
-                <select id="manual-mood" style="background:var(--sidebar-bg); color:white; border:1px solid var(--glass-border); padding:5px 10px; border-radius:8px;">
-                    <option value="">Manual Selection</option>
-                    <option value="Happy">Happy</option>
-                    <option value="Sad">Sad</option>
-                    <option value="Angry">Angry</option>
-                    <option value="Neutral">Neutral</option>
+    <div id="recommendations-panel" class="glass-card">
+        <div class="panel-header">
+            <h2 id="mood-label">
+                Mood: <span class="mood-value">Pending…</span>
+            </h2>
+            <div class="manual-select">
+                <select id="manual-mood" aria-label="Manual mood selection">
+                    <option value="">Select Mood</option>
+                    <option value="Happy">😊 Happy</option>
+                    <option value="Sad">😢 Sad</option>
+                    <option value="Angry">😠 Angry</option>
+                    <option value="Surprised">😮 Surprised</option>
+                    <option value="Neutral">😐 Neutral</option>
                 </select>
             </div>
         </div>
-        
+
         <div id="songs-list" class="songs-scroll">
-            <!-- Songs will be injected here -->
-            <div style="grid-column: 1/-1; text-align:center; padding-top:4rem; color:var(--text-dim);">
-                <ion-icon name="musical-note" style="font-size:3rem; margin-bottom:1rem;"></ion-icon>
-                <p>Click 'Detect Emotion' to get recommendations</p>
+            <div class="empty-state">
+                <ion-icon name="musical-note-outline"></ion-icon>
+                <p>Click <strong>Detect Emotion</strong> to get your recommendations</p>
             </div>
         </div>
 
-        <!-- Player Modal / Overlay (Simplified for this version) -->
-        <div id="player-container" style="display:none; margin-top:auto; padding-top:1.5rem; border-top:1px solid var(--glass-border);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                <h3 id="now-playing-title" style="font-size:1rem;">Now Playing</h3>
-                <button onclick="closePlayer()" style="background:none; border:none; color:var(--text-dim); cursor:pointer;">
-                    <ion-icon name="close" style="font-size:1.5rem;"></ion-icon>
+        <!-- Player Bar -->
+        <div id="player-container" class="player-bar" style="display:none;">
+            <div class="player-bar-header">
+                <h3 id="now-playing-title">Now Playing</h3>
+                <button class="player-close-btn" onclick="closePlayer()" aria-label="Close player">
+                    <ion-icon name="close" style="font-size:1.2rem;"></ion-icon>
                 </button>
             </div>
             <div id="yt-player"></div>
-            <div style="display:flex; gap:10px; margin-top:1rem;">
-                <button id="skip-btn" class="btn-primary" style="flex:1; background:var(--sidebar-bg);">Skip</button>
-                <button id="fav-btn" class="btn-primary" style="flex:1; background:var(--sidebar-bg);"><ion-icon name="heart-outline"></ion-icon></button>
+            <div class="player-controls">
+                <button id="skip-btn" class="btn-secondary" aria-label="Skip song">
+                    <ion-icon name="play-skip-forward-outline"></ion-icon> Skip
+                </button>
+                <button id="fav-btn" class="btn-secondary fav" aria-label="Favourite song">
+                    <ion-icon name="heart-outline"></ion-icon> Favourite
+                </button>
             </div>
         </div>
     </div>

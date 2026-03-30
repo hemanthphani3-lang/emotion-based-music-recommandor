@@ -8,8 +8,17 @@ from deepface import DeepFace  # type: ignore
 
 def detect_emotion(image_data: str) -> str:
     """
-    Detects emotion from base64 image data using DeepFace.
-    Returns the dominant emotion (e.g., 'Happy', 'Sad', 'Neutral').
+    Detects emotion from a base64 encoded image string using DeepFace.
+    Returns the dominant emotion capitalized (e.g., 'Happy', 'Sad', 'Neutral').
+    If any error occurs during decoding or detection, it gracefully falls back
+    to returning 'Neutral'.
+
+    Args:
+        image_data (str): A base64 string containing the image data.
+                          Typically prefixed with 'data:image/jpeg;base64,'.
+
+    Returns:
+        str: The detected dominant emotion.
     """
     try:
         if not image_data or "," not in image_data:

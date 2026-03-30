@@ -1,11 +1,14 @@
 const video = document.getElementById('webcam');
 const canvas = document.getElementById('photo');
 const captureBtn = document.getElementById('capture-btn');
+const captureLabel = document.getElementById('capture-label');
 const moodLabel = document.getElementById('mood-label');
 const songsList = document.getElementById('songs-list');
 const playerContainer = document.getElementById('player-container');
 const ytPlayer = document.getElementById('yt-player');
 const manualMood = document.getElementById('manual-mood');
+const detectOverlay = document.getElementById('detect-overlay');
+const cameraCard = document.getElementById('camera-card');
 
 let currentSong = null;
 
@@ -25,7 +28,9 @@ startCamera();
 // Capture and Detect
 captureBtn.addEventListener('click', async () => {
     captureBtn.disabled = true;
-    captureBtn.innerText = "Analyzing...";
+    captureLabel.innerText = "Analyzing...";
+    detectOverlay.classList.add('active');
+    cameraCard.classList.add('scanning');
     
     // Draw frame to canvas
     canvas.width = video.videoWidth;
@@ -48,7 +53,9 @@ captureBtn.addEventListener('click', async () => {
         console.error("Detection error:", err);
     } finally {
         captureBtn.disabled = false;
-        captureBtn.innerText = "Detect Emotion";
+        captureLabel.innerText = "Detect Emotion";
+        detectOverlay.classList.remove('active');
+        cameraCard.classList.remove('scanning');
     }
 });
 
@@ -60,13 +67,17 @@ manualMood.addEventListener('change', (e) => {
 });
 
 function updateMood(emotion) {
-    moodLabel.innerHTML = `Detected Mood: <span style="color:var(--accent);">${emotion}</span>`;
+    moodLabel.innerHTML = `Mood: <span class="mood-value">${emotion}</span>`;
     fetchRecommendations(emotion);
 }
 
 // Fetch Music
 async function fetchRecommendations(emotion) {
-    songsList.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding-top:4rem;">Searching for ${emotion} vibes...</div>`;
+    songsList.innerHTML = `
+        <div class="empty-state">
+            <div class="spinner" style="width: 32px; height: 32px; border-width: 2px;"></div>
+            <p>Searching for ${emotion} vibes...</p>
+        </div>`;
     
     try {
         const response = await fetch(`/recommendations/${emotion}`);
@@ -75,19 +86,29 @@ async function fetchRecommendations(emotion) {
         renderSongs(data.songs);
     } catch (err) {
         console.error("Recommendation error:", err);
+        songsList.innerHTML = `
+            <div class="empty-state">
+                <ion-icon name="alert-circle-outline" style="color:#ef4444;"></ion-icon>
+                <p>Failed to load suggestions.</p>
+            </div>`;
     }
 }
 
 function renderSongs(songs) {
     if (!songs || songs.length === 0) {
-        songsList.innerHTML = `<div style="grid-column:1/-1; text-align:center;">No songs found. Try another mood!</div>`;
+        songsList.innerHTML = `
+            <div class="empty-state">
+                <ion-icon name="search-outline"></ion-icon>
+                <p>No songs found. Try another mood!</p>
+            </div>`;
         return;
     }
 
     songsList.innerHTML = '';
-    songs.forEach(song => {
+    songs.forEach((song, index) => {
         const card = document.createElement('div');
         card.className = 'song-card';
+        card.style.animationDelay = `${index * 0.1}s`;
         card.innerHTML = `
             <img src="${song.thumbnail}" alt="${song.title}">
             <h3 title="${song.title}">${song.title}</h3>
@@ -100,10 +121,11 @@ function renderSongs(songs) {
 function playSong(song) {
     currentSong = song;
     playerContainer.style.display = 'block';
-    document.getElementById('now-playing-title').innerText = `Playing: ${song.title}`;
+    playerContainer.style.animation = 'fadeInUp 0.3s ease both';
+    document.getElementById('now-playing-title').innerText = song.title;
     
     // Embed YouTube Player
-    ytPlayer.innerHTML = `<iframe width="100%" height="200" src="https://www.youtube.com/embed/${song.id}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+    ytPlayer.innerHTML = `<iframe width="100%" height="180" src="https://www.youtube.com/embed/${song.id}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
     
     // Track Interaction
     trackAction(song.id, song.title, 'play');
@@ -112,15 +134,20 @@ function playSong(song) {
 function closePlayer() {
     playerContainer.style.display = 'none';
     ytPlayer.innerHTML = '';
+    currentSong = null;
 }
 
 // Interaction Tracking
 async function trackAction(songId, songTitle, action) {
-    await fetch('/track', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ song_id: songId, song_title: songTitle, action: action })
-    });
+    try {
+        await fetch('/track', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ song_id: songId, song_title: songTitle, action: action })
+        });
+    } catch(err) {
+        console.error("Tracking error:", err);
+    }
 }
 
 document.getElementById('skip-btn').onclick = () => {
