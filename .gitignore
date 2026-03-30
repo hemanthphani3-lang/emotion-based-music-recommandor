@@ -48,3 +48,11 @@ Thumbs.db
 # IDEs
 .vscode/
 .idea/
+
+# Flask session cache
+flask_session/
+
+# Linter output
+flake8_out*.txt
+pyright_errors.json
+pyrightconfig.json
