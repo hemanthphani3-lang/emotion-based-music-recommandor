@@ -1,0 +1,143 @@
+{% extends "layout.html" %}
+
+{% block title %}Setup Profile{% endblock %}
+
+{% block content %}
+<style>
+/* Onboarding specific styles - Spotify Vibe */
+.onboarding-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    animation: fadeIn 0.5s ease;
+}
+
+.onboarding-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.onboarding-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(90deg, var(--accent-color), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.onboarding-header p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+/* Chip Sections */
+.selection-section {
+    margin-bottom: 3rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.selection-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.chip-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* Hide actual checkbox */
+.chip-grid input[type="checkbox"] {
+    display: none;
+}
+
+/* Chip styling */
+.chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.8rem 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    color: var(--text-color);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    user-select: none;
+}
+
+.chip:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Checked state */
+.chip-grid input[type="checkbox"]:checked + .chip {
+    background: var(--accent-color);
+    color: #000;
+    border-color: var(--accent-color);
+    box-shadow: 0 4px 15px rgba(0, 229, 160, 0.3);
+    transform: scale(1.05);
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 1.2rem;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+    border-radius: 50px;
+}
+
+</style>
+
+<div class="onboarding-container">
+    <div class="onboarding-header">
+        <h1>What's your vibe?</h1>
+        <p>Pick your favorite languages and artists. We'll tune your emotion-based recommendations.</p>
+    </div>
+
+    <form method="POST" action="/onboarding" id="onboarding-form">
+        <!-- Languages -->
+        <div class="selection-section">
+            <h2><ion-icon name="earth-outline"></ion-icon> What languages do you listen to?</h2>
+            <div class="chip-grid">
+                {% set langs = ['English', 'Telugu', 'Hindi', 'Spanish', 'Korean', 'Tamil', 'Punjabi'] %}
+                {% for lang in langs %}
+                <label>
+                    <input type="checkbox" name="languages" value="{{ lang }}">
+                    <span class="chip">{{ lang }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Artists -->
+        <div class="selection-section">
+            <h2><ion-icon name="mic-outline"></ion-icon> Who are your favorite artists?</h2>
+            <div class="chip-grid">
+                {% set artists = ['Taylor Swift', 'Arijit Singh', 'Sid Sriram', 'The Weeknd', 'Drake', 'BTS', 'Ed Sheeran', 'Anirudh Ravichander', 'Billie Eilish', 'Bad Bunny', 'A.R. Rahman', 'Dua Lipa'] %}
+                {% for artist in artists %}
+                <label>
+                    <input type="checkbox" name="artists" value="{{ artist }}">
+                    <span class="chip">{{ artist }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary submit-btn">
+            Build My Profile <ion-icon name="arrow-forward-outline"></ion-icon>
+        </button>
+    </form>
+</div>
+{% endblock %}

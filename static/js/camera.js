@@ -47,7 +47,12 @@ captureBtn.addEventListener('click', async () => {
         const data = await response.json();
         
         if (data.emotion) {
-            updateMood(data.emotion);
+            if (data.emotion === 'No face found') {
+                moodLabel.innerHTML = `<span style="color:#ef4444; font-size:1.1rem; display:flex; align-items:center; gap:0.5rem;"><ion-icon name="warning-outline"></ion-icon> No face detected. Adjust lighting or pose!</span>`;
+                songsList.innerHTML = '';
+            } else {
+                updateMood(data.emotion);
+            }
         }
     } catch (err) {
         console.error("Detection error:", err);

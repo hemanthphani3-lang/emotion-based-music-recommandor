@@ -1,3 +1,4 @@
+import random
 from typing import List, Dict, Any
 from googleapiclient.discovery import build  # type: ignore
 from .db import supabase  # type: ignore
@@ -14,6 +15,26 @@ def get_recommendations(user_id: str, emotion: str) -> List[Dict[str, Any]]:
     search_query = f"{emotion} songs playlist"
 
     try:
+        # Check for user preferences
+        pref_response = supabase.table('user_preferences').select('languages, artists').eq('user_id', user_id).execute()
+        prefs = getattr(pref_response, 'data', [])
+        if prefs and len(prefs) > 0:
+            user_pref = prefs[0]
+            langs = user_pref.get('languages', [])
+            arts = user_pref.get('artists', [])
+            
+            query_parts = []
+            if langs:
+                query_parts.append(random.choice(langs))
+            query_parts.append(emotion)
+            query_parts.append("songs")
+            if arts:
+                query_parts.append(random.choice(arts))
+            
+            if len(query_parts) > 2:
+                search_query = " ".join(query_parts)
+                print(f"Personalized search query: {search_query}")
+
         # Check for skipped songs to exclude using Supabase
         response = supabase.table('interactions').select('song_id').eq(
             'user_id', user_id

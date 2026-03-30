@@ -68,7 +68,18 @@ def login() -> Union[str, Response]:
         ):
             session['user_id'] = user.get('id')
             session['username'] = user.get('username')
-            return redirect(url_for('index'))
+            
+            # Check if user has completed onboarding
+            try:
+                pref_response = supabase.table('user_preferences').select('user_id').eq('user_id', user.get('id')).execute()
+                prefs = getattr(pref_response, 'data', [])
+                if prefs and len(prefs) > 0:
+                    return redirect(url_for('index'))
+                else:
+                    return redirect(url_for('onboarding'))
+            except Exception as e:
+                print(f"Onboarding check error (did you create user_preferences table?): {e}")
+                return redirect(url_for('onboarding'))
         else:
             return "Invalid credentials"
 
@@ -79,6 +90,30 @@ def login() -> Union[str, Response]:
 def logout() -> Response:
     session.clear()
     return redirect(url_for('login'))
+
+
+@app.route('/onboarding', methods=['GET', 'POST'])
+def onboarding() -> Union[str, Response]:
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
+    if request.method == 'POST':
+        languages = request.form.getlist('languages')
+        artists = request.form.getlist('artists')
+        
+        try:
+            # Upsert user preferences
+            supabase.table('user_preferences').upsert({
+                "user_id": session['user_id'],
+                "languages": languages,
+                "artists": artists
+            }).execute()
+            return redirect(url_for('index'))
+        except Exception as e:
+            print(f"Error saving preferences: {e}")
+            return f"Error saving preferences. Did you run the SQL to create the table? Details: {e}"
+            
+    return render_template('onboarding.html')
 
 
 # --- MAIN ROUTES ---
