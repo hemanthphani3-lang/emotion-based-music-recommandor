@@ -1,33 +1,30 @@
-import sqlite3
-import requests
-import os
-from googleapiclient.discovery import build
+from typing import List, Dict, Any
+from googleapiclient.discovery import build  # type: ignore
+from .db import supabase  # type: ignore
 
 # Replace with your actual YouTube Data API v3 key
 YOUTUBE_API_KEY = "AIzaSyDW9GzPuRBywdgKE4be4nXnIcoldemTJTY"
 
-def get_db_connection():
-    conn = sqlite3.connect('database.db')
-    conn.row_factory = sqlite3.Row
-    return conn
 
-def get_recommendations(user_id, emotion):
+def get_recommendations(user_id: str, emotion: str) -> List[Dict[str, Any]]:
     """
     Fetches music recommendations from YouTube based on emotion.
     Avoids recently skipped songs and prioritizes diverse results.
     """
     search_query = f"{emotion} songs playlist"
-    
+
     try:
-        # Check for skipped songs to exclude
-        conn = get_db_connection()
-        skipped_songs = conn.execute('SELECT song_id FROM interactions WHERE user_id = ? AND action = "skip"', (user_id,)).fetchall()
-        skipped_ids = [s['song_id'] for s in skipped_songs]
-        conn.close()
+        # Check for skipped songs to exclude using Supabase
+        response = supabase.table('interactions').select('song_id').eq(
+            'user_id', user_id
+        ).eq('action', 'skip').execute()
+
+        data: List[Dict[str, Any]] = getattr(response, 'data', [])
+        skipped_ids = [s.get('song_id') for s in data if isinstance(s, dict)]
 
         # Build YouTube client
         youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
-        
+
         request = youtube.search().list(
             q=search_query,
             part="snippet",
@@ -35,39 +32,74 @@ def get_recommendations(user_id, emotion):
             type="video",
             videoEmbeddable="true"
         )
-        response = request.execute()
-        
-        songs = []
-        for item in response.get("items", []):
-            song_id = item["id"]["videoId"]
-            # Filter skipped
-            if song_id in skipped_ids:
+        api_response = request.execute()
+
+        items = api_response.get("items", []) if isinstance(
+            api_response, dict
+        ) else []
+
+        songs: List[Dict[str, Any]] = []
+        for raw_item in items:
+            if not isinstance(raw_item, dict):
                 continue
-                
+
+            id_dict = raw_item.get("id", {})
+            if not isinstance(id_dict, dict):
+                continue
+            song_id = id_dict.get("videoId")
+
+            if not song_id or song_id in skipped_ids:
+                continue
+
+            snippet = raw_item.get("snippet", {})
+            if not isinstance(snippet, dict):
+                continue
+
+            thumbnails = snippet.get("thumbnails", {})
+            if not isinstance(thumbnails, dict):
+                continue
+
+            medium = thumbnails.get("medium", {})
+            if not isinstance(medium, dict):
+                continue
+
             songs.append({
                 "id": song_id,
-                "title": item["snippet"]["title"],
-                "thumbnail": item["snippet"]["thumbnails"]["medium"]["url"]
+                "title": snippet.get("title", "Unknown"),
+                "thumbnail": medium.get("url", "")
             })
-            
-        return songs[:6] # Return top 6
-        
+
+        return songs[:6]  # type: ignore
+
     except Exception as e:
         print(f"YouTube API Error: {e}")
         # Fallback Mock Data if API fails or key is missing
         return [
-            {"id": "dQw4w9WgXcQ", "title": f"Fallback: Upbeat {emotion} Tracks", "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg"},
-            {"id": "3JZ_D3i301s", "title": f"Soulful {emotion} Vibes", "thumbnail": "https://i.ytimg.com/vi/3JZ_D3i301s/mqdefault.jpg"}
+            {
+                "id": "dQw4w9WgXcQ",
+                "title": f"Fallback: Upbeat {emotion} Tracks",
+                "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg"
+            },
+            {
+                "id": "3JZ_D3i301s",
+                "title": f"Soulful {emotion} Vibes",
+                "thumbnail": "https://i.ytimg.com/vi/3JZ_D3i301s/mqdefault.jpg"
+            }
         ]
 
-def track_interaction(user_id, song_id, song_title, action):
+
+def track_interaction(
+    user_id: str, song_id: str, song_title: str, action: str
+) -> None:
     """
-    Records user interactions (play, skip, favorite).
+    Records user interactions (play, skip, favorite) in Supabase.
     """
-    conn = get_db_connection()
-    conn.execute(
-        'INSERT INTO interactions (user_id, song_id, song_title, action) VALUES (?, ?, ?, ?)',
-        (user_id, song_id, song_title, action)
-    )
-    conn.commit()
-    conn.close()
+    try:
+        supabase.table('interactions').insert({
+            "user_id": user_id,
+            "song_id": song_id,
+            "song_title": song_title,
+            "action": action
+        }).execute()
+    except Exception as e:
+        print(f"Supabase Interaction Track Error: {e}")

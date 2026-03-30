@@ -1,0 +1,58 @@
+app.py:7:1: F401 'datetime.datetime' imported but unused
+app.py:11:80: E501 line too long (85 > 79 characters)
+app.py:24:1: E302 expected 2 blank lines, found 1
+app.py:30:1: W293 blank line contains whitespace
+app.py:40:1: W293 blank line contains whitespace
+app.py:43:1: E302 expected 2 blank lines, found 1
+app.py:48:1: W293 blank line contains whitespace
+app.py:49:80: E501 line too long (110 > 79 characters)
+app.py:52:1: W293 blank line contains whitespace
+app.py:53:80: E501 line too long (121 > 79 characters)
+app.py:59:1: W293 blank line contains whitespace
+app.py:62:1: E302 expected 2 blank lines, found 1
+app.py:69:1: E302 expected 2 blank lines, found 1
+app.py:75:1: E302 expected 2 blank lines, found 1
+app.py:79:1: W293 blank line contains whitespace
+app.py:83:1: W293 blank line contains whitespace
+app.py:92:1: W293 blank line contains whitespace
+app.py:95:1: E302 expected 2 blank lines, found 1
+app.py:99:1: W293 blank line contains whitespace
+app.py:103:1: E302 expected 2 blank lines, found 1
+app.py:107:1: W293 blank line contains whitespace
+app.py:109:80: E501 line too long (94 > 79 characters)
+app.py:112:1: E302 expected 2 blank lines, found 1
+app.py:116:1: W293 blank line contains whitespace
+app.py:118:80: E501 line too long (122 > 79 characters)
+app.py:124:1: W293 blank line contains whitespace
+app.py:126:80: E501 line too long (160 > 79 characters)
+app.py:129:1: W293 blank line contains whitespace
+app.py:134:23: E701 multiple statements on one line (colon)
+app.py:137:1: W293 blank line contains whitespace
+app.py:138:80: E501 line too long (85 > 79 characters)
+app.py:139:1: W293 blank line contains whitespace
+app.py:146:1: W293 blank line contains whitespace
+app.py:149:1: E305 expected 2 blank lines after class or function definition, found 1
+models/recommender.py:1:1: F401 'requests' imported but unused
+models/recommender.py:2:1: F401 'os' imported but unused
+models/recommender.py:9:1: E302 expected 2 blank lines, found 1
+models/recommender.py:15:1: W293 blank line contains whitespace
+models/recommender.py:18:80: E501 line too long (137 > 79 characters)
+models/recommender.py:19:1: W293 blank line contains whitespace
+models/recommender.py:28:1: W293 blank line contains whitespace
+models/recommender.py:37:1: W293 blank line contains whitespace
+models/recommender.py:39:80: E501 line too long (88 > 79 characters)
+models/recommender.py:40:46: E701 multiple statements on one line (colon)
+models/recommender.py:42:1: W293 blank line contains whitespace
+models/recommender.py:44:45: E701 multiple statements on one line (colon)
+models/recommender.py:46:1: W293 blank line contains whitespace
+models/recommender.py:49:1: W293 blank line contains whitespace
+models/recommender.py:51:45: E701 multiple statements on one line (colon)
+models/recommender.py:52:1: W293 blank line contains whitespace
+models/recommender.py:54:48: E701 multiple statements on one line (colon)
+models/recommender.py:55:1: W293 blank line contains whitespace
+models/recommender.py:57:44: E701 multiple statements on one line (colon)
+models/recommender.py:58:1: W293 blank line contains whitespace
+models/recommender.py:64:1: W293 blank line contains whitespace
+models/recommender.py:71:1: W293 blank line contains whitespace
+models/recommender.py:76:80: E501 line too long (146 > 79 characters)
+models/recommender.py:77:80: E501 line too long (135 > 79 characters)

@@ -1,0 +1,19 @@
+{
+    "include": [
+        "."
+    ],
+    "exclude": [
+        "**/node_modules",
+        "**/__pycache__",
+        "venv"
+    ],
+    "extraPaths": [
+        "./venv/Lib/site-packages"
+    ],
+    "pythonVersion": "3.13",
+    "reportMissingImports": "none",
+    "reportMissingTypeStubs": "none",
+    "reportOptionalMemberAccess": "none",
+    "reportGeneralTypeIssues": "none",
+    "reportAttributeAccessIssue": "none"
+}

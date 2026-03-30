@@ -1,0 +1,5 @@
+app.py:10:80: E501 line too long (85 > 79 characters)
+app.py:55:80: E501 line too long (121 > 79 characters)
+app.py:136:80: E501 line too long (83 > 79 characters)
+models/recommender.py:65:13: F821 undefined name 'songs'
+models/recommender.py:72:31: F821 undefined name 'songs'

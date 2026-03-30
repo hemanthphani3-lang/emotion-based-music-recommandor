@@ -1,12 +1,12 @@
 import sqlite3
-import os
 
 DB_PATH = 'database.db'
+
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    
+
     # Users table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
@@ -15,7 +15,7 @@ def init_db():
             password TEXT NOT NULL
         )
     ''')
-    
+
     # Moods table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS moods (
@@ -26,7 +26,7 @@ def init_db():
             FOREIGN KEY (user_id) REFERENCES users (id)
         )
     ''')
-    
+
     # Interactions table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS interactions (
@@ -39,10 +39,11 @@ def init_db():
             FOREIGN KEY (user_id) REFERENCES users (id)
         )
     ''')
-    
+
     conn.commit()
     conn.close()
     print("Database initialized successfully.")
+
 
 if __name__ == '__main__':
     init_db()

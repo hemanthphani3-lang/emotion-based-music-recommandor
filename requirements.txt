@@ -6,3 +6,5 @@ deepface
 google-api-python-client
 requests
 numpy
+python-dotenv
+supabase
