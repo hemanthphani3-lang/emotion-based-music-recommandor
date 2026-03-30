@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Music System - {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        {% if session.user_id %}
+        <nav class="sidebar">
+            <div class="logo">
+                <ion-icon name="musical-notes"></ion-icon>
+                <span>VibeFlow</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}"><ion-icon name="camera-outline"></ion-icon> Detect</a></li>
+                <li><a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}"><ion-icon name="stats-chart-outline"></ion-icon> Dashboard</a></li>
+                <li><a href="{{ url_for('logout') }}"><ion-icon name="log-out-outline"></ion-icon> Logout</a></li>
+            </ul>
+            <div class="user-profile">
+                <div class="avatar">{{ session.username[0] | upper }}</div>
+                <span>{{ session.username }}</span>
+            </div>
+        </nav>
+        {% endif %}
+        
+        <main class="content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</body>
+</html>

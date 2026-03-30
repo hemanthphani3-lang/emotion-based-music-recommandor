@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-header" style="margin-bottom: 2rem;">
+    <h1>Vibe Analytics</h1>
+    <p style="color: var(--text-dim);">Tracking your emotional journey through music.</p>
+</div>
+
+<div class="stats-grid" style="display:grid; grid-template-columns: 2fr 1fr; gap:2rem;">
+    <!-- Mood Distribution -->
+    <div class="glass-card">
+        <h3>Mood Distribution</h3>
+        <div class="chart-container">
+            <canvas id="moodChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Top Songs -->
+    <div class="glass-card">
+        <h3>Most Played</h3>
+        <ul style="list-style:none; margin-top:1.5rem;">
+            {% for song in top_songs %}
+            <li style="display:flex; justify-content:space-between; padding:12px; background:var(--glass); border-radius:12px; margin-bottom:10px;">
+                <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:70%;">{{ song.song_title }}</span>
+                <span style="color:var(--accent);">{{ song.count }} plays</span>
+            </li>
+            {% endfor %}
+            {% if not top_songs %}
+            <p style="color:var(--text-dim); text-align:center;">No data yet. Go vibe some songs!</p>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+<script>
+    const moodData = {{ moods | tojson }};
+    const labels = moodData.map(m => m.emotion);
+    const counts = moodData.map(m => m.count);
+
+    const ctx = document.getElementById('moodChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: counts,
+                backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#f8fafc' }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

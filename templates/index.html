@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+
+{% block title %}Mood Detector{% endblock %}
+
+{% block content %}
+<div class="detector-header" style="margin-bottom: 2rem;">
+    <h1>How are you feeling, {{ session.username }}?</h1>
+    <p style="color: var(--text-dim);">Let AI detect your mood and find the perfect soundtrack.</p>
+</div>
+
+<div class="detector-grid">
+    <!-- Camera Section -->
+    <div class="video-container glass-card">
+        <video id="webcam" autoplay playsinline></video>
+        <canvas id="photo" style="display:none;"></canvas>
+        
+        <div class="overlay">
+            <div id="status">
+                <span style="display:flex; align-items:center; gap:8px;">
+                    <ion-icon name="radio-outline" style="color:red;"></ion-icon> Live Feed
+                </span>
+            </div>
+            <button id="capture-btn" class="btn-primary" style="width:auto; margin:0; padding:10px 25px;">
+                Detect Emotion
+            </button>
+        </div>
+    </div>
+
+    <!-- Recommendations Section -->
+    <div id="recommendations-panel" class="glass-card" style="display:flex; flex-direction:column;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+            <h2 id="mood-label">Detected Mood: <span style="color:var(--accent);">Pending...</span></h2>
+            <div class="fallback-select">
+                <select id="manual-mood" style="background:var(--sidebar-bg); color:white; border:1px solid var(--glass-border); padding:5px 10px; border-radius:8px;">
+                    <option value="">Manual Selection</option>
+                    <option value="Happy">Happy</option>
+                    <option value="Sad">Sad</option>
+                    <option value="Angry">Angry</option>
+                    <option value="Neutral">Neutral</option>
+                </select>
+            </div>
+        </div>
+        
+        <div id="songs-list" class="songs-scroll">
+            <!-- Songs will be injected here -->
+            <div style="grid-column: 1/-1; text-align:center; padding-top:4rem; color:var(--text-dim);">
+                <ion-icon name="musical-note" style="font-size:3rem; margin-bottom:1rem;"></ion-icon>
+                <p>Click 'Detect Emotion' to get recommendations</p>
+            </div>
+        </div>
+
+        <!-- Player Modal / Overlay (Simplified for this version) -->
+        <div id="player-container" style="display:none; margin-top:auto; padding-top:1.5rem; border-top:1px solid var(--glass-border);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h3 id="now-playing-title" style="font-size:1rem;">Now Playing</h3>
+                <button onclick="closePlayer()" style="background:none; border:none; color:var(--text-dim); cursor:pointer;">
+                    <ion-icon name="close" style="font-size:1.5rem;"></ion-icon>
+                </button>
+            </div>
+            <div id="yt-player"></div>
+            <div style="display:flex; gap:10px; margin-top:1rem;">
+                <button id="skip-btn" class="btn-primary" style="flex:1; background:var(--sidebar-bg);">Skip</button>
+                <button id="fav-btn" class="btn-primary" style="flex:1; background:var(--sidebar-bg);"><ion-icon name="heart-outline"></ion-icon></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/camera.js') }}"></script>
+{% endblock %}
