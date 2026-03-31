@@ -51,7 +51,8 @@ def get_recommendations(user_id: str, emotion: str) -> List[Dict[str, Any]]:
             part="snippet",
             maxResults=10,
             type="video",
-            videoEmbeddable="true"
+            videoEmbeddable="true",
+            videoSyndicated="true"
         )
         api_response = request.execute()
 
@@ -94,19 +95,30 @@ def get_recommendations(user_id: str, emotion: str) -> List[Dict[str, Any]]:
 
     except Exception as e:
         print(f"YouTube API Error: {e}")
-        # Fallback Mock Data if API fails or key is missing
-        return [
-            {
-                "id": "dQw4w9WgXcQ",
-                "title": f"Fallback: Upbeat {emotion} Tracks",
-                "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg"
-            },
-            {
-                "id": "3JZ_D3i301s",
-                "title": f"Soulful {emotion} Vibes",
-                "thumbnail": "https://i.ytimg.com/vi/3JZ_D3i301s/mqdefault.jpg"
-            }
+        # Fallback Mock Data organized by emotion if API fails or key is missing
+        fallbacks = {
+            "Sad": [
+                {"id": "4N3N1MlvVc4", "title": "Mad World - Tearjerker Vibes", "thumbnail": "https://i.ytimg.com/vi/4N3N1MlvVc4/mqdefault.jpg"},
+                {"id": "RgKAFK5djSk", "title": "See You Again (Emotional)", "thumbnail": "https://i.ytimg.com/vi/RgKAFK5djSk/mqdefault.jpg"},
+                {"id": "hLQl3WQQoQ0", "title": "Someone Like You", "thumbnail": "https://i.ytimg.com/vi/hLQl3WQQoQ0/mqdefault.jpg"}
+            ],
+            "Happy": [
+                {"id": "y6Sxv-sUYtM", "title": "Happy - Pharrell Williams", "thumbnail": "https://i.ytimg.com/vi/y6Sxv-sUYtM/mqdefault.jpg"},
+                {"id": "ru0K8uYEZWw", "title": "CAN'T STOP THE FEELING!", "thumbnail": "https://i.ytimg.com/vi/ru0K8uYEZWw/mqdefault.jpg"}
+            ],
+            "Angry": [
+                {"id": "aDaOpuYOie4", "title": "Linkin Park - Numb (Intense)", "thumbnail": "https://i.ytimg.com/vi/aDaOpuYOie4/mqdefault.jpg"},
+                {"id": "1w7OgIMMRc4", "title": "Hard Rock / Metal Vibes", "thumbnail": "https://i.ytimg.com/vi/1w7OgIMMRc4/mqdefault.jpg"}
+            ]
+        }
+        
+        # Default to neutral chill beats if emotion not found
+        default = [
+            {"id": "5qap5aO4i9A", "title": "Lofi Hip Hop Radio - Chill Beats", "thumbnail": "https://i.ytimg.com/vi/5qap5aO4i9A/mqdefault.jpg"},
+            {"id": "fLexgOxsZu0", "title": "The Lazy Song (Relaxed Tone)", "thumbnail": "https://i.ytimg.com/vi/fLexgOxsZu0/mqdefault.jpg"}
         ]
+        
+        return fallbacks.get(emotion, default)
 
 
 def track_interaction(

@@ -35,10 +35,9 @@ def detect_emotion(image_data: str) -> str:
         if img is None:
             return "Neutral"
 
-        # Analyze emotion
-        # Note: DeepFace.analyze can be slow on first run (models download)
+        # Analyze emotion directly bypassing secondary localized detectors (face is strictly pre-cropped in JS)
         results: Union[List[Dict[str, Any]], Dict[str, Any]] = (
-            DeepFace.analyze(img, actions=['emotion'], enforce_detection=True)
+            DeepFace.analyze(img, actions=['emotion'], detector_backend='skip', enforce_detection=False)
         )
 
         # Handle different DeepFace return signatures
@@ -50,7 +49,7 @@ def detect_emotion(image_data: str) -> str:
         return str(dominant).capitalize()
 
     except ValueError as ve:
-        # User is likely not looking at the camera or lighting is bad
+        # Expected error when a face genuinely isn't found
         print(f"DeepFace face detection error: {ve}")
         return "No face found"
     except Exception as e:

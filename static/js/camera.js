@@ -11,12 +11,80 @@ const detectOverlay = document.getElementById('detect-overlay');
 const cameraCard = document.getElementById('camera-card');
 
 let currentSong = null;
+let latestFaceBox = null;
+
+// MediaPipe FaceMesh Setup
+const meshOverlay = document.getElementById('mesh-overlay');
+let meshCtx = null;
+if (meshOverlay) {
+    meshCtx = meshOverlay.getContext('2d');
+}
+
+let faceMesh = null;
+if (typeof FaceMesh !== 'undefined') {
+    faceMesh = new FaceMesh({locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+    }});
+    faceMesh.setOptions({
+        maxNumFaces: 1,
+        refineLandmarks: true,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+    });
+    faceMesh.onResults((results) => {
+        if (!meshCtx || !meshOverlay) return;
+        meshCtx.save();
+        meshCtx.clearRect(0, 0, meshOverlay.width, meshOverlay.height);
+        if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+            const landmarks = results.multiFaceLandmarks[0];
+            
+            // Calculate and store tight bounding box for the AI backend
+            let minX=1, minY=1, maxX=0, maxY=0;
+            for(const lm of landmarks) {
+                if(lm.x < minX) minX = lm.x;
+                if(lm.y < minY) minY = lm.y;
+                if(lm.x > maxX) maxX = lm.x;
+                if(lm.y > maxY) maxY = lm.y;
+            }
+            latestFaceBox = {minX, minY, maxX, maxY};
+
+            for (const personLandmarks of results.multiFaceLandmarks) {
+                drawConnectors(meshCtx, personLandmarks, FACEMESH_TESSELATION, 
+                    {color: 'rgba(0, 229, 160, 0.25)', lineWidth: 0.8}); 
+                drawConnectors(meshCtx, personLandmarks, FACEMESH_RIGHT_EYE, {color: '#00e5a0', lineWidth: 1.5});
+                drawConnectors(meshCtx, personLandmarks, FACEMESH_LEFT_EYE, {color: '#00e5a0', lineWidth: 1.5});
+                drawConnectors(meshCtx, personLandmarks, FACEMESH_FACE_OVAL, {color: '#00e5a0', lineWidth: 1.5});
+            }
+        } else {
+            latestFaceBox = null;
+        }
+        meshCtx.restore();
+    });
+}
 
 // Initialize Webcam
 async function startCamera() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         video.srcObject = stream;
+        video.onloadedmetadata = () => {
+            video.play().catch(err => console.error("Video play error:", err));
+        };
+
+        if (typeof Camera !== 'undefined' && faceMesh) {
+            const camera = new Camera(video, {
+                onFrame: async () => {
+                    if (meshOverlay && meshOverlay.width !== video.videoWidth && video.videoWidth > 0) {
+                        meshOverlay.width = video.videoWidth;
+                        meshOverlay.height = video.videoHeight;
+                    }
+                    await faceMesh.send({image: video});
+                },
+                width: 640,
+                height: 480
+            });
+            camera.start();
+        }
     } catch (err) {
         console.error("Camera access denied:", err);
         alert("Camera access is required for emotion detection. Falling back to manual selection.");
@@ -27,15 +95,49 @@ startCamera();
 
 // Capture and Detect
 captureBtn.addEventListener('click', async () => {
+    if (!video.videoWidth || !video.videoHeight) {
+        alert("Wait a second, the camera isn't fully ready yet or is blocked.");
+        return;
+    }
+
     captureBtn.disabled = true;
     captureLabel.innerText = "Analyzing...";
     detectOverlay.classList.add('active');
     cameraCard.classList.add('scanning');
     
-    // Draw frame to canvas
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext('2d').drawImage(video, 0, 0);
+    // Draw cropped face ONLY using MediaPipe boundaries
+    if (latestFaceBox) {
+        const vw = video.videoWidth;
+        const vh = video.videoHeight;
+        
+        let pMinX = latestFaceBox.minX * vw;
+        let pMinY = latestFaceBox.minY * vh;
+        let pMaxX = latestFaceBox.maxX * vw;
+        let pMaxY = latestFaceBox.maxY * vh;
+        
+        let width = pMaxX - pMinX;
+        let height = pMaxY - pMinY;
+        
+        // Add robust padding for forehead/chin
+        let padX = width * 0.20;
+        let padY = height * 0.35;
+        
+        pMinX = Math.max(0, pMinX - padX);
+        pMinY = Math.max(0, pMinY - padY);
+        pMaxX = Math.min(vw, pMaxX + padX);
+        pMaxY = Math.min(vh, pMaxY + padY);
+        
+        let cWidth = pMaxX - pMinX;
+        let cHeight = pMaxY - pMinY;
+        
+        canvas.width = cWidth;
+        canvas.height = cHeight;
+        canvas.getContext('2d').drawImage(video, pMinX, pMinY, cWidth, cHeight, 0, 0, cWidth, cHeight);
+    } else {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+    }
     const imageData = canvas.toDataURL('image/jpeg');
 
     try {
@@ -72,7 +174,7 @@ manualMood.addEventListener('change', (e) => {
 });
 
 function updateMood(emotion) {
-    moodLabel.innerHTML = `Mood: <span class="mood-value">${emotion}</span>`;
+    moodLabel.innerHTML = `Mood: <span class="mood-value" style="color: var(--text-main);">${emotion}</span>`;
     fetchRecommendations(emotion);
 }
 
@@ -129,8 +231,8 @@ function playSong(song) {
     playerContainer.style.animation = 'fadeInUp 0.3s ease both';
     document.getElementById('now-playing-title').innerText = song.title;
     
-    // Embed YouTube Player
-    ytPlayer.innerHTML = `<iframe width="100%" height="180" src="https://www.youtube.com/embed/${song.id}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+    // Embed YouTube Player with origin parameter to bypass syndication blocks
+    ytPlayer.innerHTML = `<iframe width="100%" height="180" src="https://www.youtube.com/embed/${song.id}?autoplay=1&origin=${window.location.origin}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
     
     // Track Interaction
     trackAction(song.id, song.title, 'play');

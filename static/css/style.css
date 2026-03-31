@@ -1,29 +1,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 /* =============================================
-   DESIGN TOKENS
+   DESIGN TOKENS: VERCEL MINIMALISM
    ============================================= */
 :root {
-    --bg-dark:       #07090f;
-    --bg-mid:        #0d1117;
-    --sidebar-bg:    #0f1620;
-    --accent:        #00e5a0;
-    --accent-2:      #4f8cff;
-    --accent-hover:  #00c98a;
-    --text-main:     #f0f4ff;
-    --text-dim:      #8892a4;
-    --text-muted:    #4a5568;
-    --glass:         rgba(255, 255, 255, 0.04);
-    --glass-hover:   rgba(255, 255, 255, 0.08);
-    --glass-border:  rgba(255, 255, 255, 0.08);
-    --shadow-sm:     0 4px 16px rgba(0, 0, 0, 0.4);
-    --shadow-lg:     0 16px 48px rgba(0, 0, 0, 0.5);
-    --glow-accent:   0 0 24px rgba(0, 229, 160, 0.2);
-    --glow-blue:     0 0 24px rgba(79, 140, 255, 0.2);
-    --radius-sm:     12px;
-    --radius-md:     20px;
-    --radius-lg:     28px;
-    --transition:    0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --bg-dark:       #000000;
+    --sidebar-bg:    #000000;
+    --text-main:     #ffffff;
+    --text-dim:      #a1a1aa;
+    --text-muted:    #71717a;
+    
+    --theme-primary:   #ffffff;
+    --theme-secondary: #fafafa;
+    --theme-glow:      rgba(255, 255, 255, 0.1);
+    
+    --glass:         #000000;
+    --glass-hover:   #0a0a0a;
+    --glass-border:  #27272a;
+    --shadow-sm:     0 0 0 1px #27272a;
+    --shadow-lg:     0 0 0 1px #27272a, 0 8px 30px rgba(0,0,0,0.5);
+    
+    --radius-sm:     4px;
+    --radius-md:     6px;
+    --radius-lg:     8px;
+    --transition:    0.15s ease-in-out;
 }
 
 /* =============================================
@@ -36,7 +36,7 @@
 }
 
 body {
-    font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', 'Outfit', -apple-system, sans-serif;
     background-color: var(--bg-dark);
     color: var(--text-main);
     overflow: hidden;
@@ -51,10 +51,7 @@ a { text-decoration: none; }
 .app-container {
     display: flex;
     height: 100vh;
-    background:
-        radial-gradient(ellipse 60% 50% at 80% 5%, rgba(0, 229, 160, 0.06) 0%, transparent 60%),
-        radial-gradient(ellipse 40% 30% at 10% 90%, rgba(79, 140, 255, 0.05) 0%, transparent 60%),
-        var(--bg-dark);
+    background: transparent;
 }
 
 /* =============================================
@@ -63,12 +60,11 @@ a { text-decoration: none; }
 .sidebar {
     width: 250px;
     flex-shrink: 0;
-    background: linear-gradient(180deg, var(--sidebar-bg) 0%, rgba(7, 9, 15, 0.95) 100%);
+    background: var(--sidebar-bg);
     display: flex;
     flex-direction: column;
     padding: 2rem 1.2rem;
     border-right: 1px solid var(--glass-border);
-    backdrop-filter: blur(24px);
     position: relative;
     z-index: 10;
 }
@@ -88,12 +84,13 @@ a { text-decoration: none; }
     gap: 10px;
     font-size: 1.4rem;
     font-weight: 800;
-    color: var(--accent);
+    color: var(--theme-primary);
     margin-bottom: 2.5rem;
     letter-spacing: -0.5px;
+    transition: var(--transition);
 }
 
-.logo ion-icon { font-size: 1.6rem; }
+.logo ion-icon { font-size: 1.6rem; color: var(--theme-primary); transition: var(--transition); }
 
 .nav-links {
     list-style: none;
@@ -124,7 +121,7 @@ a { text-decoration: none; }
     position: absolute;
     inset: 0;
     border-radius: var(--radius-sm);
-    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    background: #111111;
     opacity: 0;
     transition: var(--transition);
 }
@@ -136,13 +133,13 @@ a { text-decoration: none; }
 }
 
 .nav-links a.active {
-    color: var(--accent);
-    background: rgba(0, 229, 160, 0.08);
-    border: 1px solid rgba(0, 229, 160, 0.15);
-    box-shadow: var(--glow-accent);
+    color: var(--theme-primary);
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 0 20px var(--theme-glow);
 }
 
-.nav-links a.active ion-icon { color: var(--accent); }
+.nav-links a.active ion-icon { color: var(--theme-primary); }
 
 .user-profile {
     display: flex;
@@ -161,7 +158,7 @@ a { text-decoration: none; }
 .avatar {
     width: 36px;
     height: 36px;
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    background: #ffffff;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -193,9 +190,7 @@ a { text-decoration: none; }
    GLASS CARDS
    ============================================= */
 .glass-card {
-    background: var(--glass);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: #000000;
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
     padding: 1.8rem;
@@ -216,10 +211,7 @@ a { text-decoration: none; }
     display: flex;
     align-items: center;
     justify-content: center;
-    background:
-        radial-gradient(ellipse 60% 60% at 50% 0%, rgba(0, 229, 160, 0.1), transparent 70%),
-        radial-gradient(ellipse 40% 40% at 80% 100%, rgba(79, 140, 255, 0.08), transparent 60%),
-        var(--bg-dark);
+    background: transparent;
 }
 
 .auth-card {
@@ -283,45 +275,33 @@ a { text-decoration: none; }
 
 .btn-primary {
     width: 100%;
-    background: linear-gradient(135deg, var(--accent) 0%, #00b07a 100%);
-    color: var(--bg-dark);
-    border: none;
-    padding: 14px 20px;
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #ffffff;
+    padding: 12px 20px;
     border-radius: var(--radius-sm);
-    font-family: 'Outfit', sans-serif;
-    font-weight: 700;
+    font-family: inherit;
+    font-weight: 600;
     font-size: 0.95rem;
     cursor: pointer;
     transition: var(--transition);
     margin-bottom: 1.2rem;
-    letter-spacing: 0.3px;
-    position: relative;
-    overflow: hidden;
-}
-
-.btn-primary::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(255, 255, 255, 0.15);
-    opacity: 0;
-    transition: var(--transition);
-    border-radius: var(--radius-sm);
 }
 
 .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 229, 160, 0.35);
+    background: #e4e4e7;
+    border-color: #e4e4e7;
+    color: #000000;
 }
 
-.btn-primary:hover::after { opacity: 1; }
-.btn-primary:active { transform: translateY(0); }
+.btn-primary:active { transform: scale(0.98); }
 
 .btn-primary:disabled {
-    opacity: 0.6;
+    background: #27272a;
+    border-color: #27272a;
+    color: #52525b;
     cursor: not-allowed;
     transform: none;
-    box-shadow: none;
 }
 
 .switch-auth {
@@ -382,10 +362,10 @@ a { text-decoration: none; }
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 3px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    background: #ffffff;
     animation: scan 3s linear infinite;
     opacity: 0;
-    transition: opacity 0.3s;
+    transition: opacity 0.3s, background 1.5s ease;
 }
 
 .scanning .scan-line { opacity: 1; }
@@ -394,9 +374,10 @@ a { text-decoration: none; }
     position: absolute;
     width: 22px;
     height: 22px;
-    border-color: var(--accent);
+    border-color: var(--theme-primary);
     border-style: solid;
     opacity: 0.6;
+    transition: border-color 1.5s ease;
 }
 
 .corner-tl { top: 16px; left: 16px; border-width: 2px 0 0 2px; border-radius: 4px 0 0 0; }
@@ -498,9 +479,9 @@ a { text-decoration: none; }
 
 .song-card:hover {
     background: var(--glass-hover);
-    border-color: rgba(0, 229, 160, 0.2);
-    transform: translateY(-5px);
-    box-shadow: var(--glow-accent), var(--shadow-sm);
+    border-color: #555555;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.8);
 }
 
 .song-card img {
@@ -697,16 +678,18 @@ a { text-decoration: none; }
 .spinner {
     width: 48px;
     height: 48px;
-    border: 3px solid rgba(0, 229, 160, 0.2);
-    border-top-color: var(--accent);
+    border: 3px solid var(--theme-glow);
+    border-top-color: var(--theme-primary);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
+    transition: all 1.5s ease;
 }
 
 .detect-overlay p {
     font-size: 0.95rem;
     font-weight: 600;
-    color: var(--accent);
+    color: var(--theme-primary);
+    transition: color 1.5s ease;
 }
 
 /* =============================================

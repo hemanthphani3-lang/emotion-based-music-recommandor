@@ -12,6 +12,7 @@
     <div class="video-container glass-card" id="camera-card">
         <video id="webcam" autoplay playsinline aria-label="Webcam feed"></video>
         <canvas id="photo" style="display:none;"></canvas>
+        <canvas id="mesh-overlay" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; pointer-events:none; z-index:5; border-radius: var(--border-radius);"></canvas>
 
         <!-- Scanning corners -->
         <div class="corner-tl"></div>
@@ -86,5 +87,9 @@
     </div>
 </div>
 
+<!-- MediaPipe Face Mesh libraries -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
 <script src="{{ url_for('static', filename='js/camera.js') }}"></script>
 {% endblock %}
